@@ -21,7 +21,7 @@ async function getProducts() {
 }
 async function getProductById(id) {
   const result = await pool.query("SELECT * FROM products where id=$1", [id]);
-  return result.rows;
+  return result.rows[0];
 }
 async function createProduct(name, price, quantity, category) {
   const result = await pool.query(
@@ -31,5 +31,21 @@ async function createProduct(name, price, quantity, category) {
 
   return result.rows[0];
 }
+async function updateProduct(id, fields) {
+  const { name, price, quantity, category } = fields;
 
-export { getProducts, getProductById, createProduct };
+  const result = await pool.query(
+    `UPDATE products 
+     SET 
+       name = COALESCE($1, name),
+       price = COALESCE($2, price),
+       quantity = COALESCE($3, quantity),
+       category = COALESCE($4, category)
+     WHERE id = $5
+     RETURNING *`,
+    [name, price, quantity, category, id],
+  );
+
+  return result.rows[0];
+}
+export { getProducts, getProductById, createProduct, updateProduct };

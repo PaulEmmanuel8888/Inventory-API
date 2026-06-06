@@ -1,7 +1,12 @@
 import express from "express";
 const app = express();
 const PORT = 3000;
-import { getProducts, getProductById, createProduct } from "./db/index.js";
+import {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+} from "./db/index.js";
 
 app.use(express.json());
 
@@ -80,7 +85,69 @@ app.post("/products", async (req, res) => {
   });
 });
 
-//
+//Put Route
+app.put("/products/:id", async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (isNaN(id) || id <= 0) {
+    return res.status(400).json({
+      message: "Invalid product ID",
+    });
+  }
+
+  const existingProduct = await getProductById(id);
+
+  if (!existingProduct) {
+    return res.status(404).json({
+      message: "Product not found",
+    });
+  }
+
+  const { name, price, quantity, category } = req.body;
+
+  if (
+    name === undefined &&
+    price === undefined &&
+    quantity === undefined &&
+    category === undefined
+  ) {
+    return res.status(400).json({
+      message: "At least one field must be provided",
+    });
+  }
+
+  if (name !== undefined && typeof name !== "string") {
+    return res.status(400).json({ message: "Invalid name" });
+  }
+
+  if (price !== undefined) {
+    if (isNaN(price) || Number(price) <= 0) {
+      return res.status(400).json({ message: "Invalid price" });
+    }
+  }
+
+  if (quantity !== undefined) {
+    if (!Number.isInteger(Number(quantity)) || Number(quantity) < 0) {
+      return res.status(400).json({ message: "Invalid quantity" });
+    }
+  }
+
+  if (category !== undefined && typeof category !== "string") {
+    return res.status(400).json({ message: "Invalid category" });
+  }
+
+  const updatedProduct = await updateProduct(id, {
+    name,
+    price,
+    quantity,
+    category,
+  });
+
+  return res.status(200).json({
+    message: "Product updated successfully",
+    product: updatedProduct,
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running successfully at http://localhost:${PORT}/`);
