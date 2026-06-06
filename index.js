@@ -27,6 +27,45 @@ app.get("/products/:id", async (req, res) => {
   return res.status(200).json(product);
 });
 
+//Post Routes
+app.post("/products", async (req, res) => {
+  let { name, price, quantity, category } = req.body;
+
+  if (!name || price === undefined || quantity === undefined || !category) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  if (quantity === "" || quantity === null || quantity === undefined) {
+    return res.status(400).json({ message: "Quantity is required" });
+  }
+
+  if (isNaN(quantity)) {
+    return res.status(400).json({ message: "Quantity must be a number" });
+  }
+
+  quantity = Number(quantity);
+
+  if (!Number.isInteger(quantity) || quantity < 0) {
+    return res.status(400).json({ message: "Invalid quantity" });
+  }
+
+  if (typeof name !== "string" || typeof category !== "string") {
+    return res.status(400).json({ message: "Invalid text fields" });
+  }
+
+  if (isNaN(price) || price <= 0) {
+    return res.status(400).json({ message: "Invalid price" });
+  }
+
+  if (!Number.isInteger(quantity) || quantity < 0) {
+    return res.status(400).json({ message: "Invalid quantity" });
+  }
+
+  return res.status(201).json({
+    message: "Product validated successfully",
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running successfully at http://localhost:${PORT}/`);
 });
