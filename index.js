@@ -1,7 +1,7 @@
 import express from "express";
 const app = express();
 const PORT = 3000;
-import { getProducts, getProductById } from "./db/index.js";
+import { getProducts, getProductById, createProduct } from "./db/index.js";
 
 app.use(express.json());
 
@@ -61,8 +61,11 @@ app.post("/products", async (req, res) => {
     return res.status(400).json({ message: "Invalid quantity" });
   }
 
+  const product = await createProduct(name, price, quantity, category);
+
   return res.status(201).json({
-    message: "Product validated successfully",
+    message: "Product created successfully",
+    product,
   });
 });
 

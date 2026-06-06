@@ -23,5 +23,13 @@ async function getProductById(id) {
   const result = await pool.query("SELECT * FROM products where id=$1", [id]);
   return result.rows;
 }
+async function createProduct(name, price, quantity, category) {
+  const result = await pool.query(
+    "INSERT INTO products (name, price, quantity, category) VALUES ($1, $2, $3, $4) RETURNING *",
+    [name, price, quantity, category],
+  );
 
-export { getProducts, getProductById };
+  return result.rows[0];
+}
+
+export { getProducts, getProductById, createProduct };
