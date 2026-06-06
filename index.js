@@ -6,6 +6,7 @@ import {
   getProductById,
   createProduct,
   updateProduct,
+  deleteProduct,
 } from "./db/index.js";
 
 app.use(express.json());
@@ -146,6 +147,38 @@ app.put("/products/:id", async (req, res) => {
   return res.status(200).json({
     message: "Product updated successfully",
     product: updatedProduct,
+  });
+});
+
+//Delete Route
+app.delete("/products/:id", async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (isNaN(id) || id <= 0) {
+    return res.status(400).json({
+      message: "Invalid product ID",
+    });
+  }
+
+  const existingProduct = await getProductById(id);
+
+  if (!existingProduct) {
+    return res.status(404).json({
+      message: "Product not found",
+    });
+  }
+
+  const deletedProduct = await deleteProduct(id);
+
+  if (!deletedProduct) {
+    return res.status(404).json({
+      message: "Product already deleted or not found",
+    });
+  }
+
+  return res.status(200).json({
+    message: "Product deleted successfully",
+    product: deletedProduct,
   });
 });
 

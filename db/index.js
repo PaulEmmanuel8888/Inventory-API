@@ -48,4 +48,18 @@ async function updateProduct(id, fields) {
 
   return result.rows[0];
 }
-export { getProducts, getProductById, createProduct, updateProduct };
+async function deleteProduct(id) {
+  const result = await pool.query(
+    "DELETE FROM products WHERE id = $1 RETURNING *",
+    [id],
+  );
+
+  return result.rows[0];
+}
+export {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};
