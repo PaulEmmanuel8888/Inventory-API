@@ -13,14 +13,46 @@ app.use(express.json());
 
 //Get Routes
 app.get("/products", async (req, res) => {
+  const { category } = req.query;
+
+  const allowedCategories = [
+    "electronics",
+    "food",
+    "clothing",
+    "furniture",
+    "books",
+  ];
+
+  if (category) {
+    if (typeof category !== "string") {
+      return res.status(400).json({
+        message: "Invalid category format",
+      });
+    }
+
+    if (!allowedCategories.includes(category.toLowerCase())) {
+      return res.status(400).json({
+        message: "Invalid category value",
+      });
+    }
+
+    const products = await getProducts(category);
+
+    return res.status(200).json({
+      count: products.length,
+      products,
+    });
+  }
+
   const allProducts = await getProducts();
-  console.log(allProducts);
+
   if (allProducts.length < 1) {
     return res.status(200).json({
       message: "No Products Yet...",
     });
   }
-  res.status(200).json(allProducts);
+
+  return res.status(200).json(allProducts);
 });
 app.get("/products/:id", async (req, res) => {
   const id = Number(req.params.id);

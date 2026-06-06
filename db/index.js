@@ -15,7 +15,14 @@ pool
   .then(() => console.log("PostgreSQL connected successfully"))
   .catch((err) => console.error("Connection error:", err));
 
-async function getProducts() {
+async function getProducts(category) {
+  if (category) {
+    const result = await pool.query(
+      "SELECT * FROM products WHERE category = $1",
+      [category],
+    );
+    return result.rows;
+  }
   const result = await pool.query("SELECT * FROM products");
   return result.rows;
 }
